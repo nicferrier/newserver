@@ -11,6 +11,7 @@ things), serving files or small one off urls easily.
 Here's an example of what the config/bootstrap of such a server might
 look like:
 
+{{{
   from somemodule import admin_callable, summary_callable
   from os.path import join as joinpath
 
@@ -23,6 +24,7 @@ look like:
   admin = server.namespace["/admin/$"]          # makes a namespace for more config   
   admin.url["/user/$"] = list_users             # Define an admin handler
   admin.url["/user/(?P<username>[A-Za-z]+)/$"] = show_user # Define a user admin handler
+}}}
 
 That is designed to be written by a user. Obviously, the above is a
 relatively complex config for this kind of use case.
