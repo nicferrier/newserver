@@ -1,0 +1,73 @@
+= A new webserver =
+
+This is a sketch of a new sort of webserver.
+
+This new sort of webserver would make "normal" things easier.
+"normal" things are the kind of things you do with Apache: serving
+files, setting up nice indexing, filtering with xslt (or other
+things), serving files or small one off urls easily.
+
+
+Here's an example of what the config/bootstrap of such a server might
+look like:
+
+  from somemodule import admin_callable, summary_callable
+  from os.path import join as joinpath
+
+  server = Server(port=8000)                    # starts a webserver on port 8000     
+  server.docroot = "/home/woome/ci"             # set the docroot for this namespace  
+  server.directory["/"].index.auto = True       # make an auto index on the directory 
+  server.directory["/"].index.header.virtual = "/summary"  # include the url /summary in the index
+  server.url["/summary/$"] = summary_callable   # Define how the summary is generated
+  server.url["/summary/$"].filter.xslt.filename = "transforms/summary.xslt" # Filter the summary with an XSLT
+  admin = server.namespace["/admin/$"]          # makes a namespace for more config   
+  admin.url["/user/$"] = list_users             # Define an admin handler
+  admin.url["/user/(?P<username>[A-Za-z]+)/$"] = show_user # Define a user admin handler
+
+That is designed to be written by a user. Obviously, the above is a
+relatively complex config for this kind of use case.
+
+
+== Namespaces ==
+
+Namespaces are obviously url spaces declared with a prefix. These seem
+relatively difficult to implement so I may not do these for now.
+
+== Docroot ==
+
+If a docroot is defined then the server automatically serves files
+from the filesystem. This is what I was aiming for, something as easy
+to get going with as apache, but a bit more flexible and with less mad
+syntax.
+
+However, docroot and file serving as a special case does irk me. Why
+is it not possible to do auto-indexing across all sorts of different
+collection types? Maybe we could define collection types (filesystems,
+sql results, json values, etc...) On the other hand, filesystem
+serving is pretty obvious and common.
+
+== Filters ==
+
+The reason for doing this server is so I have the opportunity to make
+a lot of things better than they are with apache. One of the key areas
+I want to achieve this is with filters.
+
+Apache has mod_xslt and other things but it's complex and
+constrained. I would like to make it easy to filter things like xml
+and json and return html from the server side. Especially json. I like
+the idea, for example, of returning the auto directory lists as
+json. If a filter can be added to the directory to filter the json
+into html we have a really powerful medium.
+
+If that can be made to work well then virtual directorys might be
+possible where you make a driver to deliver data for a namespace from
+some source (eg: a database).
+
+Then it will be really easy to make very RESTfull services very
+quickly.
+
+== More missing things ==
+
+Any idea about what the API for callables is like is missing. Maybe it
+would just be CGI, maybe it would be something else python standardy
+like webob.
